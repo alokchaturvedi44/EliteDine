@@ -3,21 +3,48 @@ import { Response } from "express";
 import { Restaurant } from "../models/Restaurants.js";
 import { StringExpressionOperatorReturningNumber } from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
+// import cloudinary from "../config/cloudinary.js";
 import { Result } from "postcss/lib/postcss";
 import { Booking } from "../models/Booking.js";
 
 
 // Helper function to upload buffer to cloudinary
-const uploadToCloudinary = (fileBuffer: Buffer) : Promise<{secure_url: string}> => {
-    return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream({folder: "EliteDine"}, (error, result) => {
-            if(error) return reject(error);
-            if(!result) return reject(new Error("Upload failed"));
-            resolve({secure_url: result.secure_url});
-        })
-        stream.end(fileBuffer);
-    })
-}
+// const uploadToCloudinary = (fileBuffer: Buffer) : Promise<{secure_url: string}> => {
+//     return new Promise((resolve, reject) => {
+//         const stream = cloudinary.uploader.upload_stream({folder: "EliteDine"}, (error, result) => {
+//             if(error) return reject(error);
+//             if(!result) return reject(new Error("Upload failed"));
+//             resolve({secure_url: result.secure_url});
+//         })
+//         stream.end(fileBuffer);
+//     })
+// }
+const uploadToCloudinary = (
+  fileBuffer: Buffer
+): Promise<{ secure_url: string }> => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "EliteDine",
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) {
+          console.error("Cloudinary upload error:", error);
+          return reject(error);
+        }
+
+        if (!result) {
+          return reject(new Error("Upload failed"));
+        }
+
+        resolve({ secure_url: result.secure_url });
+      }
+    );
+
+    stream.end(fileBuffer);
+  });
+};
 
 // Get owner's restaurant
 // GET /api/owner/restaurant
@@ -45,7 +72,9 @@ export const createOwnerRestaurant = async (req: AuthRequest, res: Response): Pr
             res.status(400).json({message: "You already have a restaurant registered"});
             return;
         }
-
+        console.log("User:", req.user);
+        console.log("Body:", req.body);
+        console.log("File:", req.file);
         const {name, description, cuisine, priceRange, location, address, chef, tags, availableSlots, totalSeats} = req.body;
 
         if(!name || !description || !cuisine || !priceRange || !location || !address || !chef){

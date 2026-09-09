@@ -10,24 +10,53 @@ import PendingApproval from "../../components/owner/PendingApproval.tsx";
 import RequestRejected from "../../components/owner/RequestRejected.tsx";
 import OwnerBookings from "../../components/owner/OwnerBookings.tsx";
 import OwnerProfileDetails from "../../components/owner/OwnerProfileDetails.tsx";
-import { dummyMyBookingsData, dummyRestaurant } from "../../assets/assets.ts";
+import api from "../../lib/api.ts";
+import toast from "react-hot-toast";
 
 export default function OwnerDashboard() {
-    const { logout } = useAppContext();
+    const { logout, user } = useAppContext();
     const [restaurant, setRestaurant] = useState<any>(null);
     const [bookings, setBookings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"bookings" | "details">("bookings");
 
-    const fetchOwnerData = async () => {
-        setRestaurant(dummyRestaurant[0]);
-        setBookings(dummyMyBookingsData);
-        setLoading(false);
-    };
+    // const fetchOwnerData = async () => {
+    //     setRestaurant(dummyRestaurant[0]);
+    //     setBookings(dummyMyBookingsData);
+    //     setLoading(false);
+    // };
 
+    const fetchOwnerData = async () => {
+        try {
+            setLoading(true);
+
+            // Fetch the owner's restaurant
+            const res = await api.get("/owner/restaurant");
+            setRestaurant(res.data);
+
+            // Only fetch bookings if the owner has a restaurant
+            if (res.data) {
+                if(res.data.status === "approved"){
+                    const bookingRes = await api.get("/owner/bookings");
+                    setBookings(bookingRes.data);
+                }
+            } 
+        }
+        catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to load dashboard data");
+        } 
+        finally {
+            setLoading(false);
+        }
+    };
+    // useEffect(() => {
+    //     (async () => await fetchOwnerData())();
+    // }, []);
     useEffect(() => {
-        (async () => await fetchOwnerData())();
-    }, []);
+        if (user) {
+            fetchOwnerData();
+        }
+    }, [user]);
 
     if (loading) {
         return <Loader text="Loading Owner Dashboard..." />;
