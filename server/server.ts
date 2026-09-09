@@ -10,8 +10,9 @@ import adminRouter from "./routes/adminRoute.js";
 
 const app = express();
 
+
 // connect to mongodb
-await connectDB
+await connectDB();
 
 // Middleware
 app.use(cors())
@@ -24,7 +25,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRouter);
-app.use("/api/restaurant", restaurantRouter);
+app.use("/api/restaurants", restaurantRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/owner", ownerRouter);
 app.use("/api/admin", adminRouter);
