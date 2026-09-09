@@ -1,4 +1,4 @@
-# 🍽️ EliteDine – Restaurant Booking Platform - [Live link!]([url](https://elite-dine.vercel.app/))
+# 🍽️ EliteDine – Restaurant Booking Platform - [Live link!](https://elite-dine.vercel.app/)
 
 A full-stack restaurant booking platform built with **MongoDB, Express, React, Node.js, and TypeScript (MERN + TS)** featuring role-based access for **Users**, **Restaurant Owners**, and **Admins**.
 
